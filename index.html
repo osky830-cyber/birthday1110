@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7c4d6">
+    <title>Hari Spesial Bububb</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --berry: #a62e58;
+            --berry-dark: #76213f;
+            --pink: #e75c89;
+            --blush: #f7c4d6;
+            --paper: #fffaf0;
+            --butter: #f4d77b;
+            --mint: #b8d9c5;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            overflow-x: hidden;
+            color: var(--berry-dark);
+            background-color: #f7c4d6;
+            background-image: radial-gradient(#fff9 1.2px, transparent 1.2px), linear-gradient(135deg, #f8d7e4, #ef9fbd 52%, #f6c6d2);
+            background-size: 24px 24px, cover;
+            font-family: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+        }
+
+        button { font: inherit; }
+
+        .confetti {
+            position: fixed;
+            z-index: -1;
+            color: #fff9;
+            font-family: Georgia, serif;
+            pointer-events: none;
+            animation: drift 8s ease-in-out infinite alternate;
+        }
+
+        .confetti-one { top: 8%; left: 8%; font-size: 42px; }
+        .confetti-two { top: 15%; right: 10%; color: #a62e5877; font-size: 32px; animation-delay: -3s; }
+        .confetti-three { bottom: 8%; left: 15%; color: #fff9; font-size: 28px; animation-delay: -5s; }
+
+        .book {
+            width: min(100%, 980px);
+            min-height: min(690px, calc(100vh - 48px));
+            display: grid;
+            grid-template-rows: auto 1fr;
+            overflow: hidden;
+            background: var(--paper);
+            border: 1px solid #fff;
+            box-shadow: 0 22px 65px #78234335, 0 5px 0 #e98eae;
+            animation: arrive 700ms cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .book-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding: 17px 25px;
+            border-bottom: 1px dashed #dfa5b7;
+            color: #99506a;
+            font: 700 11px/1.2 "Trebuchet MS", sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .book-header span:last-child { color: var(--pink); }
+
+        .intro, .story { min-height: 0; }
+
+        .intro {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 0.9fr;
+            align-items: center;
+            gap: clamp(24px, 6vw, 72px);
+            padding: clamp(28px, 6vw, 70px);
+        }
+
+        .intro-copy { max-width: 420px; }
+
+        .eyebrow {
+            margin: 0 0 16px;
+            color: #b84a70;
+            font: 700 11px/1.2 "Trebuchet MS", sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1, h2, p { margin-top: 0; }
+
+        h1 {
+            margin-bottom: 17px;
+            color: var(--berry);
+            font-size: clamp(40px, 6vw, 68px);
+            font-weight: 400;
+            line-height: .98;
+        }
+
+        .intro-copy > p:not(.eyebrow) {
+            max-width: 340px;
+            color: #815362;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .primary-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 50px;
+            margin-top: 15px;
+            padding: 0 23px;
+            border: 0;
+            background: var(--berry);
+            color: white;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--butter);
+            transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+        }
+
+        .primary-button:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--butter); background: #872247; }
+        .primary-button:focus-visible, .icon-button:focus-visible { outline: 3px solid #37866a; outline-offset: 4px; }
+
+        .love-shot {
+            position: absolute;
+            z-index: 5;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .shot-arrow {
+            position: absolute;
+            top: 66%;
+            left: 22%;
+            width: clamp(72px, 12vw, 120px);
+            overflow: visible;
+            opacity: 0;
+            transform: rotate(-23deg) scale(.65);
+        }
+
+        .shot-arrow path {
+            fill: none;
+            stroke: #b8843d;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 4;
+        }
+
+        .shot-heart {
+            position: absolute;
+            top: 34%;
+            right: 16%;
+            color: var(--pink);
+            font: 400 clamp(48px, 8vw, 78px)/1 Georgia, serif;
+            opacity: 0;
+            transform: scale(.3) rotate(-18deg);
+            text-shadow: 0 4px 12px #a62e5844;
+        }
+
+        .shot-spark {
+            position: absolute;
+            top: 34%;
+            right: 13%;
+            color: var(--butter);
+            font-size: 32px;
+            opacity: 0;
+            transform: scale(.2) rotate(-20deg);
+        }
+
+        .intro.is-shooting .shot-arrow { animation: arrow-flight 760ms cubic-bezier(.35,.02,.2,1) both; }
+        .intro.is-shooting .shot-heart { animation: heart-impact 680ms ease-out 540ms both; }
+        .intro.is-shooting .shot-spark { animation: sparkle-impact 520ms ease-out 650ms both; }
+        .primary-button:disabled { cursor: wait; }
+
+        .cover-photo {
+            position: relative;
+            max-width: 340px;
+            margin: 0 auto;
+            padding: 12px 12px 43px;
+            transform: rotate(3deg);
+            background: white;
+            box-shadow: 0 13px 24px #78314720;
+        }
+
+        .cover-photo img {
+            display: block;
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+            background: #f6d8e2;
+        }
+
+        .tape {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            width: 94px;
+            height: 27px;
+            transform: translateX(-50%) rotate(-4deg);
+            background: #f2d67ca8;
+        }
+
+        .cover-caption {
+            position: absolute;
+            right: 0;
+            bottom: 11px;
+            left: 0;
+            color: #98516a;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .story {
+            position: relative;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            padding: clamp(18px, 3vw, 30px) clamp(22px, 5vw, 52px) 24px;
+        }
+
+        .floral-wallpaper {
+            position: absolute;
+            z-index: 0;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: .32;
+            pointer-events: none;
+        }
+
+        .scene {
+            position: relative;
+            z-index: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: 1fr auto;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .scene-photo-wrap {
+            position: relative;
+            width: fit-content;
+            max-width: min(100%, 700px);
+            max-height: min(50vh, 430px);
+            margin: 0 auto;
+            padding: 11px;
+            transform: rotate(-1deg);
+            background: white;
+            box-shadow: 0 12px 24px #78314720;
+        }
+
+        .scene-photo {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: min(calc(50vh - 22px), 408px);
+            object-fit: contain;
+            background: #f6d8e2;
+        }
+
+        .scene-photo-wrap.is-collage {
+            width: min(100%, 620px);
+            max-height: none;
+            aspect-ratio: 2.2;
+            transform: none;
+        }
+
+        .collage-grid {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-rows: minmax(0, 1fr);
+            gap: 10px;
+            padding: 3px;
+        }
+
+        .collage-grid img {
+            width: 100%;
+            height: 100%;
+            min-width: 0;
+            min-height: 0;
+            object-fit: contain;
+            padding: 3px;
+            border: 4px solid white;
+            border-radius: 22px 31px 19px 27px;
+            background: #f9e2e8;
+            box-shadow: 0 5px 12px #78314722;
+        }
+
+        .collage-grid img:nth-child(2) {
+            border-radius: 31px 19px 28px 20px;
+            transform: rotate(1.5deg);
+        }
+
+        .collage-grid img:nth-child(3) {
+            border-radius: 18px 29px 21px 32px;
+            transform: rotate(-1.2deg);
+        }
+
+        .collage-grid img:nth-child(4) {
+            border-radius: 29px 20px 32px 18px;
+            transform: rotate(1deg);
+        }
+
+        .scene-caption {
+            margin: 0 auto;
+            color: var(--berry);
+            font-size: clamp(16px, 2vw, 21px);
+            line-height: 1.45;
+            text-align: center;
+        }
+
+        .story.is-ended { grid-template-rows: 1fr; }
+        .story.is-ended .scene,
+        .story.is-ended .controls { display: none; }
+
+        .ending-screen {
+            position: relative;
+            z-index: 1;
+            min-height: 0;
+            display: grid;
+            align-content: center;
+            justify-items: center;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .ending-screen .eyebrow { margin-bottom: 0; }
+
+        .ending-title {
+            margin: 0;
+            color: var(--berry);
+            font-size: clamp(28px, 5vw, 43px);
+            font-weight: 400;
+        }
+
+        .envelope-button {
+            position: relative;
+            width: clamp(190px, 34vw, 250px);
+            aspect-ratio: 1.55;
+            margin: 19px 0 11px;
+            padding: 0;
+            overflow: visible;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            filter: drop-shadow(0 12px 11px #76213f30);
+            transition: transform 200ms ease;
+        }
+
+        .envelope-button:hover { transform: translateY(-5px) rotate(-2deg); }
+        .envelope-button:focus-visible { outline: 3px solid #37866a; outline-offset: 8px; }
+
+        .envelope-letter {
+            position: absolute;
+            z-index: 1;
+            top: 10%;
+            left: 14%;
+            width: 72%;
+            height: 76%;
+            background: #fffaf0;
+            box-shadow: 0 2px 4px #76213f22;
+            transition: transform 450ms cubic-bezier(.2,.8,.2,1);
+        }
+
+        .envelope-body {
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            background: #e985a7;
+            clip-path: polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            z-index: 3;
+            inset: 0 0 auto;
+            height: 57%;
+            background: #f2abc1;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top center;
+            transition: transform 400ms ease;
+        }
+
+        .envelope-seal {
+            position: absolute;
+            z-index: 4;
+            top: 42%;
+            left: 50%;
+            display: grid;
+            width: 39px;
+            aspect-ratio: 1;
+            place-items: center;
+            transform: translate(-50%, -50%);
+            border: 2px solid #fff2;
+            border-radius: 50%;
+            background: var(--berry);
+            color: white;
+            font-size: 19px;
+        }
+
+        .envelope-button:hover .envelope-letter { transform: translateY(-22%); }
+        .envelope-button:hover .envelope-flap { transform: rotateX(18deg); }
+
+        .envelope-hint {
+            margin: 0;
+            color: #815362;
+            font-size: 15px;
+        }
+
+        .letter-dialog {
+            width: min(560px, calc(100% - 28px));
+            max-width: none;
+            max-height: min(82vh, 760px);
+            padding: 0;
+            overflow: visible;
+            border: 0;
+            background: transparent;
+            color: var(--berry-dark);
+        }
+
+        .letter-dialog::backdrop { background: #542035a6; backdrop-filter: blur(4px); }
+
+        .letter-paper {
+            position: relative;
+            max-height: min(82vh, 760px);
+            padding: clamp(30px, 7vw, 54px);
+            overflow-y: auto;
+            border: 1px solid #edc5a2;
+            background-color: #fff8e9;
+            background-image: repeating-linear-gradient(transparent 0 31px, #dfb9a044 32px 33px);
+            box-shadow: 0 18px 60px #31101e55;
+            animation: letter-unfold 450ms cubic-bezier(.2,.8,.2,1) both;
+        }
+
+        .letter-paper::before {
+            position: absolute;
+            top: 13px;
+            right: 18px;
+            left: 18px;
+            height: 9px;
+            background: #f2d486;
+            content: "";
+            opacity: .78;
+        }
+
+        .letter-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            margin: -8px -8px 8px 12px;
+            border: 1px solid #dfa5b7;
+            background: #fffaf0;
+            color: var(--berry);
+            cursor: pointer;
+            font: 24px/1 Georgia, serif;
+        }
+
+        .letter-close:hover { background: var(--berry); color: white; }
+        .letter-title { margin: 12px 0 22px; color: var(--berry); font-size: 31px; font-weight: 400; }
+        .letter-message { margin: 0; color: #744554; font-size: 17px; line-height: 2; white-space: pre-line; }
+
+        .scene.is-entering .scene-photo-wrap { animation: photo-in 520ms ease both; }
+
+        .controls {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 14px;
+            padding-top: 18px;
+            border-top: 1px dashed #dfa5b7;
+        }
+
+        .progress-copy {
+            color: #99506a;
+            font: 700 11px/1.2 "Trebuchet MS", sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .progress-track {
+            grid-column: 2;
+            width: min(240px, 34vw);
+            height: 5px;
+            overflow: hidden;
+            background: #efd9df;
+        }
+
+        .progress-fill { width: 10%; height: 100%; background: var(--pink); transition: width 350ms ease; }
+
+        .control-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+
+        .icon-button {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #e2b1c0;
+            background: transparent;
+            color: var(--berry);
+            cursor: pointer;
+            transition: background 150ms ease, color 150ms ease;
+        }
+
+        .icon-button:hover { background: var(--berry); color: white; }
+        .icon-button svg { width: 17px; height: 17px; fill: currentColor; }
+        .hidden { display: none !important; }
+
+        @keyframes arrive { from { opacity: 0; transform: translateY(16px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes photo-in { from { opacity: 0; transform: translateX(-12px) rotate(-1deg); } to { opacity: 1; transform: translateX(0) rotate(-1deg); } }
+        @keyframes drift { to { transform: translateY(-18px) rotate(12deg); } }
+        @keyframes arrow-flight {
+            0% { top: 66%; left: 22%; opacity: 0; transform: rotate(-23deg) scale(.65); }
+            12% { opacity: 1; }
+            78% { top: 38%; left: 68%; opacity: 1; transform: rotate(-23deg) scale(1); }
+            100% { top: 36%; left: 73%; opacity: 0; transform: rotate(-23deg) scale(.9); }
+        }
+        @keyframes arrow-flight-mobile {
+            0% { top: 32%; left: 18%; opacity: 0; transform: rotate(62deg) scale(.65); }
+            12% { opacity: 1; }
+            78% { top: 61%; left: 28%; opacity: 1; transform: rotate(62deg) scale(1); }
+            100% { top: 66%; left: 30%; opacity: 0; transform: rotate(62deg) scale(.9); }
+        }
+        @keyframes heart-impact {
+            0% { opacity: 0; transform: scale(.3) rotate(-18deg); }
+            35% { opacity: 1; transform: scale(1.25) rotate(8deg); }
+            58% { opacity: 1; transform: scale(.92) rotate(-5deg); }
+            100% { opacity: 0; transform: scale(1.12) rotate(0); }
+        }
+        @keyframes sparkle-impact {
+            0% { opacity: 0; transform: scale(.2) rotate(-20deg); }
+            35% { opacity: 1; transform: scale(1.15) rotate(12deg); }
+            100% { opacity: 0; transform: scale(.6) rotate(42deg); }
+        }
+        @keyframes letter-unfold {
+            from { opacity: 0; transform: translateY(35px) rotateX(-12deg) scale(.94); }
+            to { opacity: 1; transform: translateY(0) rotateX(0) scale(1); }
+        }
+
+        @media (max-width: 680px) {
+            body { padding: 12px; }
+            .book { min-height: calc(100vh - 24px); }
+            .book-header { padding: 14px 17px; font-size: 9px; letter-spacing: 1px; }
+            .intro { grid-template-columns: 1fr; gap: 32px; padding: 34px 24px; }
+            .intro-copy { text-align: center; margin: auto; }
+            .intro-copy > p:not(.eyebrow) { margin-right: auto; margin-left: auto; }
+            .cover-photo { width: min(75%, 290px); }
+            .cover-photo img { height: clamp(210px, 34vh, 280px); }
+            .shot-arrow { top: 34%; left: 20%; width: 78px; }
+            .shot-heart { top: 68%; right: calc(50% - 33px); font-size: 62px; }
+            .shot-spark { top: 69%; right: calc(50% - 47px); font-size: 27px; }
+            .intro.is-shooting .shot-arrow { animation-name: arrow-flight-mobile; }
+            .scene { align-content: center; }
+            .scene-photo-wrap { max-height: min(46vh, 420px); }
+            .scene-photo { max-height: min(calc(46vh - 22px), 398px); }
+            .scene-photo-wrap.is-collage { width: 100%; max-height: min(43vh, 390px); aspect-ratio: 2.1; }
+            .scene-caption { max-width: 34ch; font-size: 16px; }
+            .story { padding: 18px 18px 16px; }
+            .letter-paper { padding: 34px 25px; }
+            .letter-message { font-size: 15px; line-height: 1.85; }
+            .letter-title { font-size: 27px; }
+            .controls { gap: 8px; }
+            .progress-track { width: min(90px, 20vw); }
+            .progress-copy { font-size: 9px; }
+            .icon-button { width: 35px; height: 35px; }
+        }
+
+        @media (max-height: 700px) and (min-width: 681px) {
+            .book { min-height: min(600px, calc(100vh - 30px)); }
+            .scene-photo-wrap { height: min(350px, 48vh); }
+            .cover-photo img { height: 270px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <span class="confetti confetti-one" aria-hidden="true">♡</span>
+    <span class="confetti confetti-two" aria-hidden="true">✦</span>
+    <span class="confetti confetti-three" aria-hidden="true">♡</span>
+
+    <main class="book">
+        <header class="book-header">
+
+        </header>
+
+        <section class="intro" id="intro" aria-labelledby="intro-title">
+            <div class="intro-copy">
+                <p class="eyebrow">it's ur birthday babe</p>
+                <h1 id="intro-title">Selamat ulang tahun, Bububb</h1>
+                <p>aku buat ini bukan cuman karna kamu ulang tahun bubb tapi juga karna bersyukurnya aku punya kamu.</p>
+                <button class="primary-button" id="start-button" type="button">
+                    Buka cerita <span aria-hidden="true">♡</span>
+                </button>
+            </div>
+            <div class="cover-photo">
+                <span class="tape" aria-hidden="true"></span>
+                <img src="foto11.png" alt="Kenangan manis kita">
+                <span class="cover-caption">one person, a million stories</span>
+            </div>
+            <div class="love-shot" aria-hidden="true">
+                <svg class="shot-arrow" viewBox="0 0 140 48">
+                    <path d="M8 24h116m0 0L99 9m25 15L99 39M20 14 8 24l12 10"/>
+                </svg>
+                <span class="shot-heart">♥</span>
+                <span class="shot-spark">✦</span>
+            </div>
+        </section>
+
+        <section class="story hidden" id="story" aria-label="Cerita ulang tahun" aria-live="polite">
+            <svg class="floral-wallpaper" viewBox="0 0 600 600" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                    <pattern id="bouquet-pattern" width="150" height="170" patternUnits="userSpaceOnUse">
+                        <g opacity=".58">
+                            <path d="M48 73 43 119M73 61 71 119M96 74 99 119M60 83 52 119M84 82 91 119" fill="none" stroke="#729b79" stroke-linecap="round" stroke-width="2.5"/>
+                            <path d="M45 99q-16-12-17 1 11 7 17-1m31 5q15-14 19-3-8 11-19 3m-23-8q-13-14-18-6 6 12 18 6m42 11q14-12 19-4-8 10-19 4" fill="#a8c69d"/>
+                            <g transform="translate(43 42)" fill="#ed92b1"><circle cy="-8" r="6"/><circle cx="8" r="6"/><circle cy="8" r="6"/><circle cx="-8" r="6"/><circle r="4" fill="#f1ce69"/></g>
+                            <g transform="translate(73 31)" fill="#e980a5"><circle cy="-8" r="6"/><circle cx="8" r="6"/><circle cy="8" r="6"/><circle cx="-8" r="6"/><circle r="4" fill="#f1ce69"/></g>
+                            <g transform="translate(99 49)" fill="#ed92b1"><circle cy="-8" r="6"/><circle cx="8" r="6"/><circle cy="8" r="6"/><circle cx="-8" r="6"/><circle r="4" fill="#f1ce69"/></g>
+                            <g transform="translate(60 64)" fill="#ed92b1"><circle cy="-7" r="5"/><circle cx="7" r="5"/><circle cy="7" r="5"/><circle cx="-7" r="5"/><circle r="3.5" fill="#f1ce69"/></g>
+                            <path d="M35 111h72l-10 43H45z" fill="#efb4c6" stroke="#bd718f" stroke-width="2"/>
+                            <path d="M33 109h76v8H33z" fill="#f5d486" stroke="#bd718f" stroke-width="2"/>
+                        </g>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#bouquet-pattern)"/>
+            </svg>
+            <div class="scene is-entering" id="scene">
+                <div class="scene-photo-wrap" id="scene-photo-wrap">
+                    <img class="scene-photo" id="scene-photo" src="foto1.jpg" alt="Kenangan kita">
+                    <div class="collage-grid hidden" id="collage-grid"></div>
+                </div>
+                <p class="scene-caption hidden" id="scene-caption"></p>
+            </div>
+            <section class="ending-screen hidden" id="ending-screen" aria-labelledby="ending-title">
+        
+                <h2 class="ending-title" id="ending-title">Silahkan dibuka sayang</h2>
+                <button class="envelope-button" id="envelope-button" type="button" aria-label="Buka amplop surat">
+                    <span class="envelope-letter" aria-hidden="true"></span>
+                    <span class="envelope-body" aria-hidden="true"></span>
+                    <span class="envelope-flap" aria-hidden="true"></span>
+                    <span class="envelope-seal" aria-hidden="true">♥</span>
+                </button>
+    
+            </section>
+            <footer class="controls">
+                <span class="progress-copy" id="progress-copy">Page 1/8</span>
+                <div class="progress-track" role="progressbar" aria-label="Kemajuan cerita" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="control-buttons">
+                    <button class="icon-button" id="music-button" type="button" aria-label="Putar musik" title="Putar musik">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12.2A4 4 0 1 1 10 11V6l10-2v11.2A4 4 0 1 1 18 11V3z"/></svg>
+                    </button>
+                    <button class="icon-button" id="play-button" type="button" aria-label="Jeda slideshow" title="Jeda">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+                    </button>
+                    <button class="icon-button" id="previous-button" type="button" aria-label="Adegan sebelumnya" title="Sebelumnya">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zm12 1v12L9 12z"/></svg>
+                    </button>
+                    <button class="icon-button" id="next-button" type="button" aria-label="Adegan berikutnya" title="Berikutnya">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM6 6v12l9-6z"/></svg>
+                    </button>
+                </div>
+            </footer>
+        </section>
+    </main>
+    <dialog class="letter-dialog" id="letter-dialog" aria-labelledby="letter-title">
+        <article class="letter-paper">
+            <button class="letter-close" id="letter-close" type="button" aria-label="Tutup surat">×</button>
+            <p class="letter-message">selamat ulang tahun ya bubub sayangku cintaku manisku duniaku, semoga kamu bisa menjadi pribadi yang lebih baik, kuat, dan percaya diri, dann cantik tantunya yaa walaupun udah cantik maksimal🤭, aku sayang kamu banget bubb, aku buat ini full senyum sukaaa banget lihat kamu, aku pakai fotonya ini ini aja tapi hahahahahaa, gada foto lain soalnya hahahahahaha🤣, intinya aku senang kamu ada di hidup aku,  dan aku senang kalau kamu senang, sekali lagi selamat ulang tahun ya sayangg🥳</p>
+        </article>
+    </dialog>
+    <audio id="birthday-song" src="lagu2.mp3" preload="auto" loop></audio>
+
+    <script>
+        const scenes = [
+            { image: "foto1.jpg" },
+            { image: "foto2.jpg" },
+            { image: "foto3.jpg" },
+            { image: "foto4.jpg" },
+            { image: "foto5.jpg" },
+            { image: "foto6.jpg" },
+            { image: "foto7.jpg" },
+            {
+                images: ["foto8.jpg", "foto9.jpg", "foto10.jpg", "foto12.jpg"],
+                caption: "ini bubub angle kanan atau bubub yang look likes angel xixixixi"
+            }
+        ];
+
+        const intro = document.getElementById("intro");
+        const story = document.getElementById("story");
+        const scene = document.getElementById("scene");
+        const endingScreen = document.getElementById("ending-screen");
+        const letterDialog = document.getElementById("letter-dialog");
+        const photo = document.getElementById("scene-photo");
+        const photoWrap = document.getElementById("scene-photo-wrap");
+        const collageGrid = document.getElementById("collage-grid");
+        const caption = document.getElementById("scene-caption");
+        const progressCopy = document.getElementById("progress-copy");
+        const progress = document.getElementById("progress-fill");
+        const progressTrack = document.querySelector(".progress-track");
+        const playButton = document.getElementById("play-button");
+        const musicButton = document.getElementById("music-button");
+        const birthdaySong = document.getElementById("birthday-song");
+        const estimatedSongDuration = 45.4;
+        let currentScene = 0;
+        let timer;
+        let isPlaying = true;
+
+        function renderScene() {
+            const current = scenes[currentScene];
+            scene.classList.remove("is-entering");
+            void scene.offsetWidth;
+            if (current.images) {
+                photo.classList.add("hidden");
+                photoWrap.classList.add("is-collage");
+                collageGrid.classList.remove("hidden");
+                collageGrid.replaceChildren(...current.images.map((image) => {
+                    const collagePhoto = document.createElement("img");
+                    collagePhoto.src = image;
+                    collagePhoto.alt = `Foto ${image.match(/\d+/)[0]}`;
+                    return collagePhoto;
+                }));
+                caption.textContent = current.caption;
+                caption.classList.remove("hidden");
+            } else {
+                photo.classList.remove("hidden");
+                photoWrap.classList.remove("is-collage");
+                collageGrid.classList.add("hidden");
+                collageGrid.replaceChildren();
+                caption.classList.add("hidden");
+                photo.src = current.image;
+                photo.alt = "Foto kenangan";
+            }
+            progressCopy.textContent = `Page ${currentScene + 1}/${scenes.length}`;
+            progress.style.width = `${((currentScene + 1) / scenes.length) * 100}%`;
+            progressTrack.setAttribute("aria-valuenow", String(currentScene + 1));
+            scene.classList.add("is-entering");
+        }
+
+        function advance() {
+            if (currentScene === scenes.length - 1) {
+                showEnding();
+                return;
+            }
+            currentScene = (currentScene + 1) % scenes.length;
+            renderScene();
+        }
+
+        function showEnding() {
+            clearInterval(timer);
+            stopTimer();
+            story.classList.add("is-ended");
+            scene.classList.add("hidden");
+            endingScreen.classList.remove("hidden");
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            const songDuration = Number.isFinite(birthdaySong.duration) && birthdaySong.duration > 0
+                ? birthdaySong.duration
+                : estimatedSongDuration;
+            timer = setInterval(advance, (songDuration / scenes.length) * 1000);
+            isPlaying = true;
+            playButton.setAttribute("aria-label", "Jeda slideshow");
+            playButton.title = "Jeda";
+            playButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+            isPlaying = false;
+            playButton.setAttribute("aria-label", "Putar slideshow");
+            playButton.title = "Putar";
+            playButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+        }
+
+        function updateMusicButton() {
+            const isMusicPlaying = !birthdaySong.paused;
+            musicButton.setAttribute("aria-label", isMusicPlaying ? "Jeda musik" : "Putar musik");
+            musicButton.title = isMusicPlaying ? "Jeda musik" : "Putar musik";
+            musicButton.innerHTML = isMusicPlaying
+                ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>'
+                : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12.2A4 4 0 1 1 10 11V6l10-2v11.2A4 4 0 1 1 18 11V3z"/></svg>';
+        }
+
+        birthdaySong.addEventListener("play", updateMusicButton);
+        birthdaySong.addEventListener("pause", updateMusicButton);
+
+        musicButton.addEventListener("click", () => {
+            if (birthdaySong.paused) {
+                birthdaySong.play().catch(() => updateMusicButton());
+            } else {
+                birthdaySong.pause();
+            }
+        });
+
+        const startButton = document.getElementById("start-button");
+        let isOpeningStory = false;
+
+        startButton.addEventListener("click", () => {
+            if (isOpeningStory) return;
+            isOpeningStory = true;
+            startButton.disabled = true;
+            intro.classList.add("is-shooting");
+            birthdaySong.play().catch(() => updateMusicButton());
+            currentScene = 0;
+            renderScene();
+            startTimer();
+
+            const revealStory = () => {
+                intro.classList.add("hidden");
+                story.classList.remove("hidden");
+                renderScene();
+            };
+
+            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            window.setTimeout(revealStory, reduceMotion ? 0 : 1050);
+        });
+
+        document.getElementById("next-button").addEventListener("click", () => {
+            advance();
+            if (isPlaying) startTimer();
+        });
+
+        document.getElementById("previous-button").addEventListener("click", () => {
+            currentScene = (currentScene - 1 + scenes.length) % scenes.length;
+            renderScene();
+            if (isPlaying) startTimer();
+        });
+
+        playButton.addEventListener("click", () => isPlaying ? stopTimer() : startTimer());
+
+        document.getElementById("envelope-button").addEventListener("click", () => letterDialog.showModal());
+        document.getElementById("letter-close").addEventListener("click", () => letterDialog.close());
+        letterDialog.addEventListener("click", (event) => {
+            if (event.target === letterDialog) letterDialog.close();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (story.classList.contains("hidden")) return;
+            if (event.key === "ArrowRight") document.getElementById("next-button").click();
+            if (event.key === "ArrowLeft") document.getElementById("previous-button").click();
+            if (event.code === "Space" && event.target.tagName !== "BUTTON") {
+                event.preventDefault();
+                playButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
